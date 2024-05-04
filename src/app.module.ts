@@ -3,8 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MajorModule } from './major/major.module';
+import { PostModule } from './post/post.module';
+import { TeamModule } from './team/team.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -18,12 +21,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get('DB_USERNAME'),
         database: configService.get('DB_NAME'),
         password: configService.get('DB_PASSWORD'),
-        entities: [User],
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
     UserModule,
+    MajorModule,
+    PostModule,
+    TeamModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
