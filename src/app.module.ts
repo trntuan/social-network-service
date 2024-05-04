@@ -8,6 +8,7 @@ import { MajorModule } from './major/major.module';
 import { PostModule } from './post/post.module';
 import { TeamModule } from './team/team.module';
 import { RoleModule } from './role/role.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { RoleModule } from './role/role.module';
     PostModule,
     TeamModule,
     RoleModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -15,6 +15,7 @@ import { ReportPost } from 'src/post/entities/report_post.entity';
 import { CredibilityPost } from 'src/post/entities/credibility_post.entity';
 import { CredibilityUser } from './credibility_user.entity';
 import { Team } from 'src/team/entities/team.entity';
+import { TeamMember } from 'src/team/entities/team_member.entity';
 
 @Entity()
 export class User {
@@ -101,10 +102,13 @@ export class User {
 
   @OneToMany(
     () => CredibilityUser,
-    (credibilityUser) => credibilityUser.user_believer_id,
+    (credibilityUser) => credibilityUser.user_believer,
   )
   user_believer_id: CredibilityUser[];
 
   @OneToMany(() => Team, (team) => team.creator_user)
   teams: Team[];
+
+  @OneToMany(() => TeamMember, (teamMember) => teamMember.user)
+  TeamMembers: TeamMember[];
 }

@@ -35,6 +35,4 @@ export class Major {
     onUpdate: 'CASCADE',
   })
   userMajor: UserMajor[];
-  //   @JoinColumn({ name: 'user_id' })
-  //   userMajor: UserMajor[];
 }

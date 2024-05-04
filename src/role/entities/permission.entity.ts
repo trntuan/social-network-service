@@ -20,7 +20,7 @@ export class Permission {
 
   @OneToMany(
     () => RolePermission,
-    (rolePermission) => rolePermission.permission_id,
+    (rolePermission) => rolePermission.permission,
   )
   @JoinTable()
   role_permission: RolePermission[];

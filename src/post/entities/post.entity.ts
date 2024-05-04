@@ -9,7 +9,8 @@ import {
 import { ReportPost } from './report_post.entity';
 import { CredibilityPost } from './credibility_post.entity';
 import { PostImage } from './post_image.entity';
-// import { PostImage } from './post_image.entity';
+import { PostTeam } from 'src/team/entities/post_team.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class Post {
@@ -49,4 +50,10 @@ export class Post {
 
   @OneToMany(() => PostImage, (postImage) => postImage.post)
   post_images: PostImage[];
+
+  @OneToMany(() => PostTeam, (postTeam) => postTeam.post)
+  postTeam: PostTeam[];
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 }

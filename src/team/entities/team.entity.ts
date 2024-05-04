@@ -5,7 +5,10 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
+import { TeamMember } from './team_member.entity';
+import { PostTeam } from './post_team.entity';
 
 @Entity()
 export class Team {
@@ -27,4 +30,10 @@ export class Team {
   @ManyToOne(() => User, (user) => user.teams)
   @JoinColumn({ name: 'creator_user' })
   creator_user: User;
+
+  @OneToMany(() => TeamMember, (teamMember) => teamMember.team)
+  teamMembers: TeamMember[];
+
+  @OneToMany(() => PostTeam, (postTeam) => postTeam.team)
+  postTeam: PostTeam[];
 }
