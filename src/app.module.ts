@@ -9,6 +9,8 @@ import { PostModule } from './post/post.module';
 import { TeamModule } from './team/team.module';
 import { RoleModule } from './role/role.module';
 import { AdminModule } from './admin/admin.module';
+import { MinioClientModule } from './minio-client/minio-client.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { AdminModule } from './admin/admin.module';
     TeamModule,
     RoleModule,
     AdminModule,
+    MinioClientModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
