@@ -7,12 +7,11 @@ export class FileUploadService {
   constructor(private minioClientService: MinioClientService) {}
 
   async uploadSingle(image: BufferedFile) {
-    console.log('image', image);
-    // const uploaded_image =
-    //   await this.minioClientService.putObjectGeneral(image);
+    const uploaded_image =
+      await this.minioClientService.putObjectGeneral(image);
 
     return {
-      // image_url: uploaded_image,
+      image_url: uploaded_image,
       message: 'Successfully uploaded to MinIO S3',
     };
   }

@@ -1,8 +1,7 @@
-import AWS from 'aws-sdk';
-
+import { S3 } from 'aws-sdk';
 export const config = {
   // MINIO_ENDPOINT: 'http://103.82.195.138:9000',
-  MINIO_ENDPOINT: 'localhost',
+  MINIO_ENDPOINT: 'http://103.82.195.138:9000',
   MINIO_PORT: 9001,
   MINIO_ACCESSKEY: 'Lf8lsbNc3tV4ZBsvcLHH',
   MINIO_SECRETKEY: '8977uQUJ5GpAl182wEZqx5RoOeoNOcFRZZwY1IC0',
@@ -14,22 +13,41 @@ export const config = {
     },
   ],
 };
-
 const localSetup = {
   endpoint: config.MINIO_ENDPOINT,
   accessKeyId: config.MINIO_ACCESSKEY,
-  secretAccessKey: config.MINIO_ACCESSKEY,
+  secretAccessKey: config.MINIO_SECRETKEY,
   sslEnabled: false,
   s3ForcePathStyle: true,
+  region: 'us-east-1',
+  useAccelerateEndpoint: true,
+  useDualstackEndpoint: true,
+  signatureVersion: 'v4',
+  httpOptions: {
+    timeout: 10 * 60 * 1000,
+  },
 };
 
-const awsBucket = new AWS.S3(localSetup);
+let awsBucket: S3;
 
-export { awsBucket };
+const handleEventConnect = async () => {
+  const params = {
+    Bucket: 'social',
+  };
+  await awsBucket.listObjects(params).promise();
+  return console.info('CONNECTED TO S3 BUCKET SUCCESS 🦩!!');
+};
 
-// MINIO_ACCESSKEY: 'Lf8lsbNc3tV4ZBsvcLHH',
-// MINIO_SECRETKEY: '8977uQUJ5GpAl182wEZqx5RoOeoNOcFRZZwY1IC0',
+const initAwsBucket = async () => {
+  try {
+    console.log(localSetup);
+    awsBucket = new S3(localSetup);
+    await handleEventConnect();
+  } catch (error) {
+    console.log('Error initializing AWS S3:', error);
+  }
+};
 
-// old
-// MINIO_ACCESSKEY: 'LtueQGbNyeFS3wMBlGh3',
-// MINIO_SECRETKEY: 'yzaYjTKtJMYG5mRDDTId0tl11VdFpSpZUI67fMJk',
+const getAwsBucket = () => awsBucket;
+
+export { getAwsBucket, initAwsBucket };
