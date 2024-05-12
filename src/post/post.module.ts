@@ -4,10 +4,18 @@ import { PostController } from './post.controller';
 import { Post } from './entities/post.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { FileUploadModule } from 'src/file-upload/file-upload.module';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { MinioClientService } from 'src/minio-client/minio-client.service';
+import { PostImage } from './entities/post_image.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post]), ConfigModule],
+  imports: [
+    TypeOrmModule.forFeature([Post, PostImage]),
+    ConfigModule,
+    FileUploadModule,
+  ],
   controllers: [PostController],
-  providers: [PostService],
+  providers: [PostService, FileUploadService, MinioClientService],
 })
 export class PostModule {}

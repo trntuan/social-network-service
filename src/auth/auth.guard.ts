@@ -32,10 +32,10 @@ export class AuthGuard implements CanActivate {
     } catch {
       throw new HttpException(
         {
-          status: 419,
+          status: 401,
           message: 'Token expired',
         },
-        419,
+        401,
       );
     }
 

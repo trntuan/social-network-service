@@ -18,6 +18,7 @@ export class UserService {
 
   async register(registerDto: CreateUserDto): Promise<userResponse> {
     const { email } = registerDto;
+    console.log('registerDto:', registerDto);
     const query = this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email });
@@ -68,6 +69,7 @@ export class UserService {
       message: 'tài khoảng hoặc mật khẩu không đúng!',
       user: null,
     };
+
     return response;
   }
 }

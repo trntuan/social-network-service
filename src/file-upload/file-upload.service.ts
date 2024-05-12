@@ -13,4 +13,12 @@ export class FileUploadService {
     console.log('Successfully', uploaded_image);
     return uploaded_image;
   }
+
+  // async uploadMultiple(images: BufferedFile[]) {
+  //   const uploaded_images = await Promise.all(
+  //     images.map(async (image) => await this.uploadSingle(image)),
+  //   );
+
+  //   return uploaded_images;
+  // }
 }

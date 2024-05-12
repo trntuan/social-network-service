@@ -5,6 +5,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from 'src/user/dto/login.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async userlogin(loginDto: LoginDto): Promise<any> {
+  async userlogin(loginDto: LoginDto, cookie: Response): Promise<any> {
     const { email, password } = loginDto;
 
     const user = await this.userRepository
@@ -30,6 +31,8 @@ export class AuthService {
       const token = await this.generateToken(payload);
 
       console.log('token:', JSON.stringify(token));
+
+      cookie.cookie('token', token.refresh_token);
       const response: any = {
         statusCode: '200',
         message: 'Đăng nhập thành công!',
