@@ -40,10 +40,10 @@ export class User {
   @Column({ length: 100, nullable: true, collation: 'utf8mb4_unicode_ci' })
   location: string;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ length: 100, default: '' })
   date_of_birth: string;
 
-  @Column({ length: 100, nullable: true }) /// remove nullable
+  @Column({ length: 200, nullable: true }) /// remove nullable
   refresh_token: string;
 
   @Column({ default: 1, comment: '1 tieng viet, 2 tieng anh' })

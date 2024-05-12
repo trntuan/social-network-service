@@ -10,9 +10,7 @@ export class FileUploadService {
     const uploaded_image =
       await this.minioClientService.putObjectGeneral(image);
 
-    return {
-      image_url: uploaded_image,
-      message: 'Successfully uploaded to MinIO S3',
-    };
+    console.log('Successfully', uploaded_image);
+    return uploaded_image;
   }
 }

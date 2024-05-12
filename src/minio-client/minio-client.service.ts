@@ -24,9 +24,9 @@ export class MinioClientService {
         Body: buffer,
         ...ContentType,
       };
-      const data = await getAwsBucket().putObject(params).promise();
-      console.info(`Upload success for ${key}`);
-      return data;
+      await getAwsBucket().putObject(params).promise();
+
+      return key;
     } catch (error) {
       console.error('Error uploading file:', error);
       throw error;

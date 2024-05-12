@@ -1,5 +1,4 @@
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -57,7 +56,7 @@ export class UserService {
     if (user && user.password === password) {
       const response: userResponse = {
         statusCode: '200',
-        message: 'Đăng ký thành công!',
+        message: 'Đăng nhập thành công!',
         user: user,
       };
 
@@ -70,21 +69,5 @@ export class UserService {
       user: null,
     };
     return response;
-  }
-
-  findAll() {
-    return this.userRepository.find();
-  }
-
-  findOne(user_id: number) {
-    return this.userRepository.findOneBy({ user_id });
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto);
-  }
-
-  remove(user_id: number) {
-    return this.userRepository.delete(user_id);
   }
 }
