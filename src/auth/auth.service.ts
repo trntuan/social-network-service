@@ -112,7 +112,8 @@ export class AuthService {
         message: 'Đăng nhập thành công!',
         email: user.email,
         password: user.password,
-        access_token: token.access_token,
+        display_name: user.display_name,
+        token: token.access_token,
         refresh_token: token.refresh_token,
       };
 

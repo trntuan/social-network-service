@@ -23,10 +23,7 @@ export class User {
   user_id: number;
 
   @Column({ length: 255 })
-  last_name: string;
-
-  @Column({ length: 255 })
-  first_name: string;
+  display_name: string;
 
   @Column({ length: 255 })
   email: string;

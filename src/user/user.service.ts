@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterResponse as userResponse } from 'src/common/interfaces/register_pesponse';
-import { LoginDto } from './dto/login.dto';
 
 export class UserService {
   constructor(
@@ -45,31 +44,30 @@ export class UserService {
       return response;
     }
   }
+  // async validateUser(loginDto: LoginDto): Promise<userResponse> {
+  //   const { email, password } = loginDto;
 
-  async validateUser(loginDto: LoginDto): Promise<userResponse> {
-    const { email, password } = loginDto;
+  //   const user = await this.userRepository
+  //     .createQueryBuilder('user')
+  //     .where('user.email = :email', { email })
+  //     .getOne();
 
-    const user = await this.userRepository
-      .createQueryBuilder('user')
-      .where('user.email = :email', { email })
-      .getOne();
+  //   if (user && user.password === password) {
+  //     const response: userResponse = {
+  //       statusCode: '200',
+  //       message: 'Đăng nhập thành công!',
+  //       user: user,
+  //     };
 
-    if (user && user.password === password) {
-      const response: userResponse = {
-        statusCode: '200',
-        message: 'Đăng nhập thành công!',
-        user: user,
-      };
+  //     return response;
+  //   }
 
-      return response;
-    }
+  //   const response: userResponse = {
+  //     statusCode: '400',
+  //     message: 'tài khoảng hoặc mật khẩu không đúng!',
+  //     user: null,
+  //   };
 
-    const response: userResponse = {
-      statusCode: '400',
-      message: 'tài khoảng hoặc mật khẩu không đúng!',
-      user: null,
-    };
-
-    return response;
-  }
+  //   return response;
+  // }
 }

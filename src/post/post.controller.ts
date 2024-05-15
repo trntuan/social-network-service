@@ -3,15 +3,16 @@ import {
   Controller,
   Post,
   Req,
+  Get,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { AuthGuard } from '../auth/auth.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { BufferedFile } from 'src/minio-client/file.model';
+import { AuthUserGuard } from 'src/auth/auth_user.guard';
 
 @Controller('post')
 export class PostController {
@@ -36,7 +37,7 @@ export class PostController {
   //   );
   // }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthUserGuard)
   @Post()
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -45,7 +46,7 @@ export class PostController {
       { name: 'image3', maxCount: 1 },
     ]),
   )
-  register(
+  post(
     @Req() req: any,
     @UploadedFiles() files: BufferedFile,
     @Body() createUserDto: CreatePostDto,
@@ -59,5 +60,10 @@ export class PostController {
       req['user_data'].id,
       files,
     );
+  }
+  @UseGuards(AuthUserGuard)
+  @Get('all_my_post')
+  getMyPosts(@Req() req: any) {
+    return this.postService.getAllMyPost(req['user_data'].id);
   }
 }

@@ -46,6 +46,42 @@ export class PostService {
     return result;
   }
 
+  async getAllMyPost(userId: number) {
+    const posts = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.comments', 'comment')
+      .leftJoinAndSelect('post.department_post', 'credibilityPost')
+      .where('post.user_post = :userId', { userId })
+      .select([
+        'post.post_id',
+        'post.content',
+        'post.privacy_type',
+        'COUNT(comment.comment_id) AS commentCount',
+        'COUNT(credibilityPost.user_id) AS credibilityCount',
+      ])
+      .groupBy('post.post_id')
+      .getRawMany();
+
+    for (const post of posts) {
+      console.log('post', post.post_post_id);
+
+      const images = await this.postRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.post_images', 'postImage')
+        .where('postImage.post_id = :postId', { postId: post.post_post_id })
+        .select('postImage.post_image_url')
+        .getRawMany();
+
+      console.log('images', images);
+
+      post.post_image_url = images.map(
+        (image) => image.postImage_post_image_url,
+      );
+    }
+
+    return posts;
+  }
+
   async createPostImage(url: string, postId: number): Promise<PostImage> {
     const newPostImage = new PostImage();
     newPostImage.post_image_url = url;
