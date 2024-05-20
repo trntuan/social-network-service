@@ -1,26 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto';
+import { Repository } from 'typeorm';
+import { Team } from './entities/team.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class TeamService {
-  create(createTeamDto: CreateTeamDto) {
-    return 'This action adds a new team';
+  constructor(
+    @InjectRepository(Team)
+    private teamRepository: Repository<Team>,
+  ) {}
+
+  async getAllTeams() {
+    return this.teamRepository
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.teamMembers', 'TeamMember')
+      .leftJoinAndSelect('team.postTeam', 'PostTeam')
+      .select(['team', 'COUNT(TeamMember.user_id) AS memberCount'])
+      .groupBy('team.team_id')
+      .getRawMany();
   }
 
-  findAll() {
-    return `This action returns all team`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} team`;
-  }
-
-  update(id: number, updateTeamDto: UpdateTeamDto) {
-    return `This action updates a #${id} team`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} team`;
+  async getTeamById(teamId: number) {
+    return this.teamRepository
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.teamMembers', 'teamMember')
+      .leftJoinAndSelect('teamMember.user', 'user')
+      .leftJoinAndSelect('teamMember.role', 'role')
+      .where('team.team_id = :teamId', { teamId })
+      .getOne();
   }
 }
