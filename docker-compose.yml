@@ -6,8 +6,6 @@ services:
     image: mysql:latest
     container_name: dev_mysql
     restart: always
-    ports:
-      - "${MYSQL_PORT}:${MYSQL_PORT}"
     volumes:
       - ./data/db:/var/lib/mysql
     environment:
@@ -33,7 +31,7 @@ services:
     networks:
       - social_network
 
-  # NestJS backend service
+  # Todo: NestJS backend service
   backend:
     build: 
       context: .
@@ -43,7 +41,7 @@ services:
     container_name: nestjs_backend
     restart: always
     ports:
-      - "3000:3000" # Port mặc định của NestJS
+      - "${PORT}:${PORT}"
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: "${MYSQL_PORT}"

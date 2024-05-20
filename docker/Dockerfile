@@ -1,23 +1,23 @@
-# Sử dụng image chứa Node.js
+# Use Node.js base image
 FROM node:20-alpine
 
-# Tạo thư mục làm việc của ứng dụng
+# Set the working directory for the app
 WORKDIR /usr/src/app
 
-# Copy package.json và package-lock.json để cài đặt các dependency
+# Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
 
-# Cài đặt các dependency
+# Install dependencies
 RUN npm install
 
-# Copy mã nguồn ứng dụng vào thư mục làm việc
+# Copy the application source code into the working directory
 COPY . .
 
-# Build ứng dụng
+# Build the application
 RUN npm run build
 
-# Port mà ứng dụng chạy trên container
+# Expose the port the app runs on within the container
 EXPOSE 3000
 
-# Lệnh để chạy ứng dụng khi container được khởi động
+# Command to run the application when the container starts
 CMD ["npm", "run", "start:prod"]
