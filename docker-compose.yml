@@ -1,0 +1,58 @@
+version: '3.7'
+
+services:
+  # TODO: MYSQL
+  mysql:
+    image: mysql:latest
+    container_name: dev_mysql
+    restart: always
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    volumes:
+      - ./data/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_USER_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    networks:
+      - social_network
+
+  # TODO: PHP MYADMIN
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: "dev_phpmyadmin"
+    depends_on: 
+      - mysql
+    restart: always
+    ports:
+      - "${PHPMYADMIN_PORT}:80"
+    environment:
+      PMA_HOST: "${PMA_HOST}"
+      PMA_PORT: "${PMA_PORT}"
+    networks:
+      - social_network
+
+  # NestJS backend service
+  backend:
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile
+    depends_on: 
+      - mysql
+    container_name: nestjs_backend
+    restart: always
+    ports:
+      - "3000:3000" # Port mặc định của NestJS
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "${MYSQL_PORT}"
+      MYSQL_USER: "${MYSQL_USER_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_USER_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+    networks:
+      - social_network
+  
+networks:
+    social_network:
+        driver: bridge
