@@ -31,14 +31,14 @@ services:
     networks:
       - social_network
 
-  # Todo: NestJS backend service
+  # TODO: NestJS backend service
   backend:
+    container_name: nestjs_backend
     build: 
       context: .
       dockerfile: ./docker/Dockerfile
     depends_on: 
       - mysql
-    container_name: nestjs_backend
     restart: always
     ports:
       - "${PORT}:${PORT}"
