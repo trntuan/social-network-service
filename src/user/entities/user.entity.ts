@@ -25,6 +25,9 @@ export class User {
   @Column({ length: 255 })
   display_name: string;
 
+  @Column({ length: 255, nullable: true })
+  avatar: string;
+
   @Column({ length: 255 })
   email: string;
 

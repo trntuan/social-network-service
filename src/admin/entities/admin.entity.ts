@@ -16,7 +16,7 @@ export class Admin {
   @Column({ length: 100 })
   email: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 200 })
   refresh_token: string;
 
   @OneToMany(() => AdminRole, (adminRole) => adminRole.admin)

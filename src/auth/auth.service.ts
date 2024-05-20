@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { LoginDto } from 'src/user/dto/login.dto';
 import { Response } from 'express';
 import { Admin } from 'src/admin/entities/admin.entity';
+import { TokenDto } from './dto/refresh_token.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,18 +15,20 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(User)
+    @InjectRepository(Admin)
     private adminRepository: Repository<Admin>,
     private configService: ConfigService,
   ) {}
 
   async loginAdmin(loginDto: LoginDto, cookie: Response): Promise<any> {
     const { email, password } = loginDto;
+    console.log('email, password', email, password);
 
     const admin = await this.adminRepository
       .createQueryBuilder('admin')
       .where('admin.email = :email', { email })
       .getOne();
+    console.log('loginDtadmino', admin);
 
     if (admin && admin.password === password) {
       //generate access token and refresh token
@@ -63,17 +66,21 @@ export class AuthService {
     return { access_token, refresh_token };
   }
 
-  async refreshTokenAdmin(refresh_token: string): Promise<any> {
+  async refreshTokenAdmin(refreshToken: TokenDto): Promise<any> {
     try {
-      const verify = await this.jwtService.verifyAsync(refresh_token, {
+      const verify = await this.jwtService.verifyAsync(refreshToken.token, {
         secret: this.configService.get<string>('SECRET'),
       });
+      console.log('verify:', verify);
+
       const checkExistToken = await this.adminRepository.findOneBy({
         email: verify.email,
-        refresh_token,
+        refresh_token: refreshToken.token,
       });
 
-      if (checkExistToken) {
+      console.log('checkExistToken:', checkExistToken);
+
+      if (checkExistToken == null) {
         return this.generateTokenAdmin({ id: verify.id, email: verify.email });
       } else {
         throw new HttpException(

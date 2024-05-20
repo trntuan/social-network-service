@@ -27,6 +27,19 @@ export class Team {
   @Column({ type: 'int', name: 'creator_user' })
   creator_user_id: number;
 
+  @Column({
+    type: 'tinyint',
+    default: 0,
+    comment: '(0: riêng tư, 1: công khai)',
+  })
+  privacy_type: number;
+  @Column({
+    type: 'tinyint',
+    default: 0,
+    comment: '(0: bài viết đăng tự do, 1: bài viết cần duyệt)',
+  })
+  review_type: number;
+
   @ManyToOne(() => User, (user) => user.teams)
   @JoinColumn({ name: 'creator_user' })
   creator_user: User;

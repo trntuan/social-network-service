@@ -5,6 +5,7 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { ReportPost } from './report_post.entity';
 import { CredibilityPost } from './credibility_post.entity';
@@ -39,7 +40,11 @@ export class Post {
   @Column({ type: 'timestamp', nullable: true, default: null })
   modified_date: Date | null;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_post' })
   user: User;
 
   @OneToMany(() => ReportPost, (reportPost) => reportPost.post)

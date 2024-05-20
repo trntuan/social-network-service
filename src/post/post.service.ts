@@ -50,10 +50,15 @@ export class PostService {
     const posts = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.comments', 'comment')
+      .leftJoinAndSelect('post.user', 'user')
       .leftJoinAndSelect('post.department_post', 'credibilityPost')
+
       .where('post.user_post = :userId', { userId })
       .select([
         'post.post_id',
+        'post.user_post',
+        'user.display_name',
+        'user.avatar',
         'post.content',
         'post.privacy_type',
         'COUNT(comment.comment_id) AS commentCount',

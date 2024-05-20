@@ -2,12 +2,13 @@ import { Controller, Post, Body, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from 'src/user/dto/login.dto';
 import { Response } from 'express';
+import { TokenDto } from './dto/refresh_token.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('user')
-  createUser(
+  loginUser(
     @Res({ passthrough: true }) response: Response,
     @Body() loginDto: LoginDto,
   ) {
@@ -15,7 +16,7 @@ export class AuthController {
   }
 
   @Post('admin')
-  createAdmin(
+  loginAdmin(
     @Res({ passthrough: true }) response: Response,
     @Body() loginDto: LoginDto,
   ) {
@@ -23,7 +24,7 @@ export class AuthController {
   }
 
   @Post('admin/refresh_token')
-  createTokenAdmin(token: string) {
+  createTokenAdmin(@Body() token: TokenDto) {
     return this.authService.refreshTokenAdmin(token);
   }
 }

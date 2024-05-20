@@ -8,10 +8,11 @@ import { FileUploadModule } from 'src/file-upload/file-upload.module';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { MinioClientService } from 'src/minio-client/minio-client.service';
 import { PostImage } from './entities/post_image.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post, PostImage]),
+    TypeOrmModule.forFeature([Post, PostImage, User]),
     ConfigModule,
     FileUploadModule,
   ],
