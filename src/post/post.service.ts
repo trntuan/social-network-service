@@ -60,6 +60,7 @@ export class PostService {
         'user.display_name',
         'user.avatar',
         'post.content',
+        'post.created_date',
         'post.privacy_type',
         'COUNT(comment.comment_id) AS commentCount',
         'COUNT(credibilityPost.user_id) AS credibilityCount',
