@@ -1,23 +1,21 @@
-# Use Node.js base image
+# Use the official Node.js image as the base image
 FROM node:20-alpine
 
-# Set the working directory for the app
+# Create and change to the app directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to install dependencies
+# Install app dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the application source code into the working directory
+# Copy the rest of the application code
 COPY . .
 
 # Build the application
 RUN npm run build
 
-# Expose the port the app runs on within the container
+# Expose the application port
 EXPOSE 3000
 
-# Command to run the application when the container starts
+# Start the application
 CMD ["npm", "run", "start:prod"]

@@ -34,9 +34,7 @@ services:
   # TODO: NestJS backend service
   backend:
     container_name: nestjs_backend
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile
+    image: tuandev202202/social-network:latest
     depends_on: 
       - mysql
     restart: always
