@@ -7,6 +7,7 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -61,6 +62,15 @@ export class PostController {
       files,
     );
   }
+
+  @Get('all_posts')
+  getAllPosts(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.postService.getAllPosts(page, pageSize);
+  }
+
   @UseGuards(AuthUserGuard)
   @Get('all_my_post')
   getMyPosts(@Req() req: any) {

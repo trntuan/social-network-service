@@ -88,6 +88,45 @@ export class PostService {
     return posts;
   }
 
+  async getAllPosts(page: number, pageSize: number = 30) {
+    const posts = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.comments', 'comment')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.department_post', 'credibilityPost')
+      .select([
+        'post.post_id',
+        'post.user_post',
+        'user.display_name',
+        'user.avatar',
+        'post.content',
+        'post.created_date',
+        'post.privacy_type',
+        'COUNT(comment.comment_id) AS commentCount',
+        'COUNT(credibilityPost.user_id) AS credibilityCount',
+      ])
+      .groupBy('post.post_id')
+      .orderBy('post.created_date', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getRawMany();
+
+    for (const post of posts) {
+      const images = await this.postRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.post_images', 'postImage')
+        .where('postImage.post_id = :postId', { postId: post.post_post_id })
+        .select('postImage.post_image_url')
+        .getRawMany();
+
+      post.post_image_url = images.map(
+        (image) => image.postImage_post_image_url,
+      );
+    }
+
+    return posts;
+  }
+
   async createPostImage(url: string, postId: number): Promise<PostImage> {
     const newPostImage = new PostImage();
     newPostImage.post_image_url = url;
