@@ -22,6 +22,10 @@ image-tag:
 push-registry:
 	docker push $(DOCKER_IMAGE_NAME)
 
+update-registry:
+	make image-tag
+	make push-registry
+
 
 
 	
