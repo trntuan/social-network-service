@@ -7,7 +7,7 @@ services:
     container_name: dev_mysql
     restart: always
     volumes:
-      - ./data/db:/var/lib/mysql
+      - data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER_USERNAME}"
@@ -54,3 +54,6 @@ services:
 networks:
     social_network:
         driver: bridge
+volumes:
+  data:
+    driver: local
