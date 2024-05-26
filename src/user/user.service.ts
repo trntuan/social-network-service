@@ -3,11 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterResponse as userResponse } from 'src/common/interfaces/register_pesponse';
+import { Friendship } from './entities/friendship.entity';
 
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Friendship)
+    private friendshipRepository: Repository<Friendship>,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -27,6 +30,33 @@ export class UserService {
       ],
     });
   }
+  /// ====================== friend ======================
+
+  async getUsersExcludingFriends(userId: number) {
+    const excludedUserIds = await this.friendshipRepository
+      .createQueryBuilder('friendship')
+      .where('friendship.user_id_1 = :userId', { userId })
+      .orWhere('friendship.user_id_2 = :userId', { userId })
+      .getMany()
+      .then((friendships) =>
+        friendships.map((f) =>
+          f.user_id_1 === userId ? f.user_id_2 : f.user_id_1,
+        ),
+      );
+
+    if (excludedUserIds.length === 0) {
+      console.log('excludedUserIds:', excludedUserIds);
+      return this.userRepository.find();
+    }
+
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.user_id NOT IN (:...excludedUserIds)', { excludedUserIds })
+      .getMany();
+
+    return users;
+  }
+
   async findUser(userId: number) {
     return (
       this.userRepository

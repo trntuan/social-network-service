@@ -22,6 +22,11 @@ export class UserController {
   async getAllUsers() {
     return this.userService.getAllUsers();
   }
+  @Get('friend_recommend')
+  async getFriendRecoment(@Query('userId') userId: number) {
+    return this.userService.getUsersExcludingFriends(userId);
+  }
+
   // @Post('login')
   // async login(@Body() loginDto: LoginDto) {
   //   return this.userService.validateUser(loginDto);
