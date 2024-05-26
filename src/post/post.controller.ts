@@ -14,6 +14,8 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { BufferedFile } from 'src/minio-client/file.model';
 import { AuthUserGuard } from 'src/auth/auth_user.guard';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { LikePostDto } from './dto/like-post.dto';
 
 @Controller('post')
 export class PostController {
@@ -47,19 +49,47 @@ export class PostController {
       { name: 'image3', maxCount: 1 },
     ]),
   )
-  post(
+  createPost(
     @Req() req: any,
     @UploadedFiles() files: BufferedFile,
     @Body() createUserDto: CreatePostDto,
   ) {
-    console.log('[id]121212:', req['user_data'].id);
-    console.log('[createUserDto:', createUserDto.content);
-    console.log('[file:', files);
-
     return this.postService.createPost(
       createUserDto,
       req['user_data'].id,
       files,
+    );
+  }
+
+  @UseGuards(AuthUserGuard)
+  @Post('like')
+  async likePost(@Req() req: any, @Body() dto: LikePostDto) {
+    // console.log('req[user_data].id:', req['user_data']);
+
+    return this.postService.likePost(
+      req['user_data'].id,
+      dto.post_id,
+      dto.value,
+    );
+  }
+
+  @UseGuards(AuthUserGuard)
+  @Post('comment')
+  createCommemt(
+    @Req() req: any,
+    @Body()
+    dto: CreateCommentDto,
+  ) {
+    // console.log('bodyParser.json():', bodyParser.json().toString());
+    console.log('req[user_data].id:', req['user_data'].id);
+
+    console.log('dto.post_id:', dto.post_id);
+    console.log('dto:', dto);
+    return this.postService.createComment(
+      dto.content,
+      dto.post_id,
+      req['user_data'].id,
+      dto.parent_id,
     );
   }
 
@@ -75,5 +105,31 @@ export class PostController {
   @Get('all_my_post')
   getMyPosts(@Req() req: any) {
     return this.postService.getAllMyPost(req['user_data'].id);
+  }
+
+  @Get('detail')
+  async getPostDetails(@Query('id') id: number) {
+    return this.postService.getPostDetails(id);
+  }
+
+  @Get('comment')
+  async getComment(
+    @Query('id') id: number,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    {
+      return this.postService.getCommentPost(id, page, pageSize);
+    }
+  }
+
+  //================================================================================================
+
+  @Get('all_posts_personal')
+  getAllPostsPersonal(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.postService.getAllPosts(page, pageSize);
   }
 }

@@ -60,13 +60,13 @@ export class UserService {
 
   async register(registerDto: CreateUserDto): Promise<userResponse> {
     const { email } = registerDto;
-    console.log('registerDto:', registerDto);
+
     const query = this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email });
 
     const existingUser = await query.getOne();
-    console.log('existingUser:', existingUser);
+
     if (existingUser) {
       const response: userResponse = {
         statusCode: '400',

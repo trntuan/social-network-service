@@ -40,7 +40,6 @@ const handleEventConnect = async () => {
 
 const initAwsBucket = async () => {
   try {
-    console.log(localSetup);
     awsBucket = new S3(localSetup);
     await handleEventConnect();
   } catch (error) {
