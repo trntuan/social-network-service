@@ -90,6 +90,18 @@ export class PostService {
   }
 
   async getAllPosts(page: number, pageSize: number = 30) {
+    const commentCountSubQuery = this.postRepository
+      .createQueryBuilder('post2')
+      .leftJoin('post2.comments', 'comment')
+      .where('post2.post_id = post.post_id')
+      .select('COUNT(comment.comment_id)', 'commentCount');
+
+    const credibilityCountSubQuery = this.postRepository
+      .createQueryBuilder('post3')
+      .leftJoin('post3.department_post', 'credibilityPost')
+      .where('post3.post_id = post.post_id')
+      .select('COUNT(credibilityPost.user_id)', 'credibilityCount');
+
     const posts = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.comments', 'comment')
@@ -103,8 +115,8 @@ export class PostService {
         'post.content',
         'post.created_date',
         'post.privacy_type',
-        'COUNT(comment.comment_id) AS commentCount',
-        'COUNT(credibilityPost.user_id) AS credibilityCount',
+        `(${commentCountSubQuery.getQuery()}) AS commentCount`,
+        `(${credibilityCountSubQuery.getQuery()}) AS credibilityCount`,
       ])
       .groupBy('post.post_id')
       .orderBy('post.created_date', 'DESC')
@@ -129,6 +141,18 @@ export class PostService {
   }
 
   async getPostDetails(postId: number) {
+    const commentCountSubQuery = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.comments', 'comment')
+      .where('post.post_id = :postId', { postId })
+      .select('COUNT(comment.comment_id)', 'commentCount');
+
+    const credibilityCountSubQuery = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.department_post', 'credibilityPost')
+      .where('post.post_id = :postId', { postId })
+      .select('COUNT(credibilityPost.user_id)', 'credibilityCount');
+
     console.log('postId', postId);
     const posts = await this.postRepository
       .createQueryBuilder('post')
@@ -144,8 +168,8 @@ export class PostService {
         'post.content',
         'post.created_date',
         'post.privacy_type',
-        'COUNT(comment.comment_id) AS commentCount',
-        'COUNT(credibilityPost.user_id) AS credibilityCount',
+        `(${commentCountSubQuery.getQuery()}) AS commentCount`,
+        `(${credibilityCountSubQuery.getQuery()}) AS credibilityCount`,
       ])
       .getRawOne();
 
@@ -236,6 +260,117 @@ export class PostService {
     }
     await this.commentRepository.save(comment);
     return comment;
+  }
+
+  ///
+  async getAllPostsPersonal(
+    userId: number,
+    page: number,
+    pageSize: number = 30,
+  ) {
+    const commentCountSubQuery = this.postRepository
+      .createQueryBuilder('post2')
+      .leftJoin('post2.comments', 'comment')
+      .where('post2.post_id = post.post_id')
+      .select('COUNT(comment.comment_id)', 'commentCount');
+
+    const credibilityCountSubQuery = this.postRepository
+      .createQueryBuilder('post3')
+      .leftJoin('post3.department_post', 'credibilityPost')
+      .where('post3.post_id = post.post_id')
+      .select('COUNT(credibilityPost.user_id)', 'credibilityCount');
+
+    const posts = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .select([
+        'post.post_id',
+        'post.user_post',
+        'user.display_name',
+        'user.avatar',
+        'post.content',
+        'post.created_date',
+        'post.privacy_type',
+        `(${commentCountSubQuery.getQuery()}) AS commentCount`,
+        `(${credibilityCountSubQuery.getQuery()}) AS credibilityCount`,
+      ])
+      .orderBy('post.created_date', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getRawMany();
+
+    for (const post of posts) {
+      const images = await this.postRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.post_images', 'postImage')
+        .where('postImage.post_id = :postId', { postId: post.post_post_id })
+        .select('postImage.post_image_url')
+        .getRawMany();
+
+      post.post_image_url = images.map(
+        (image) => image.postImage_post_image_url,
+      );
+
+      const credibilityPost = await this.credibilityPostRepository.findOne({
+        where: { user_id: userId, post_id: post.post_post_id },
+      });
+
+      post.like_value = credibilityPost ? credibilityPost.credibility : 0;
+    }
+
+    return posts;
+  }
+
+  async getPostDetailsPersonal(userId: number, postId: number) {
+    const commentCountSubQuery = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.comments', 'comment')
+      .where('post.post_id = :postId', { postId })
+      .select('COUNT(comment.comment_id)', 'commentCount');
+
+    const credibilityCountSubQuery = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.department_post', 'credibilityPost')
+      .where('post.post_id = :postId', { postId })
+      .select('COUNT(credibilityPost.user_id)', 'credibilityCount');
+
+    const posts = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.comments', 'comment')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.department_post', 'credibilityPost')
+      .where('post.post_id = :postId', { postId })
+      .select([
+        'post.post_id',
+        'post.user_post',
+        'user.display_name',
+        'user.avatar',
+        'post.content',
+        'post.created_date',
+        'post.privacy_type',
+        `(${commentCountSubQuery.getQuery()}) AS commentCount`,
+        `(${credibilityCountSubQuery.getQuery()}) AS credibilityCount`,
+      ])
+      .getRawOne();
+
+    const images = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.post_images', 'postImage')
+      .where('postImage.post_id = :postId', { postId })
+      .select('postImage.post_image_url')
+      .getRawMany();
+
+    posts.post_image_url = images.map(
+      (image) => image.postImage_post_image_url,
+    );
+
+    const credibilityPost = await this.credibilityPostRepository.findOne({
+      where: { user_id: userId, post_id: posts.post_post_id },
+    });
+
+    posts.like_value = credibilityPost ? credibilityPost.credibility : 0;
+
+    return posts;
   }
 
   // async createPostImageMany(

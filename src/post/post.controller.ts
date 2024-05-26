@@ -123,13 +123,24 @@ export class PostController {
     }
   }
 
-  //================================================================================================
-
+  //============================== personal =================================================
+  @UseGuards(AuthUserGuard)
   @Get('all_posts_personal')
   getAllPostsPersonal(
+    @Req() req: any,
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
   ) {
-    return this.postService.getAllPosts(page, pageSize);
+    return this.postService.getAllPostsPersonal(
+      req['user_data'].id,
+      page,
+      pageSize,
+    );
+  }
+
+  @UseGuards(AuthUserGuard)
+  @Get('detail_personal')
+  async getPostDetailsPersonal(@Req() req: any, @Query('id') id: number) {
+    return this.postService.getPostDetailsPersonal(req['user_data'].id, id);
   }
 }
