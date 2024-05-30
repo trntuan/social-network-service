@@ -127,6 +127,7 @@ export class PostService {
       .select([
         'reportPost.reason',
         'post.post_id',
+        'MAX(reportPost.reason) AS reason',
         'post.user_post',
         'user.display_name',
         'user.avatar',
@@ -136,7 +137,7 @@ export class PostService {
         `(${commentCountSubQuery.getQuery()}) AS commentCount`,
         `(${credibilityCountSubQuery.getQuery()}) AS credibilityCount`,
       ])
-      .groupBy('post.post_id')
+      .groupBy('post.post_id, social_network.reportPost.reason')
       .orderBy('post.created_date', 'DESC')
       .skip((page - 1) * pageSize)
       .take(pageSize)
