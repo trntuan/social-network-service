@@ -125,6 +125,7 @@ export class PostService {
       .leftJoinAndSelect('post.user', 'user')
       .leftJoinAndSelect('post.department_post', 'credibilityPost')
       .select([
+        'reportPost.reason',
         'post.post_id',
         'post.user_post',
         'user.display_name',
