@@ -21,25 +21,6 @@ import { LikePostDto } from './dto/like-post.dto';
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  // @UseGuards(AuthGuard)
-  // @Post('single')
-  // @UseInterceptors(FileInterceptor('image'))
-  // register(
-  //   @Req() req: any,
-  //   @UploadedFile() file: BufferedFile,
-  //   @Body() createUserDto: CreatePostDto,
-  // ) {
-  //   console.log('[id]121212:', req['user_data'].id);
-  //   console.log('[createUserDto:', createUserDto.content);
-  //   console.log('[file:', file);
-
-  //   return this.postService.createPost(
-  //     createUserDto,
-  //     req['user_data'].id,
-  //     file,
-  //   );
-  // }
-
   @UseGuards(AuthUserGuard)
   @Post()
   @UseInterceptors(
@@ -80,7 +61,6 @@ export class PostController {
     @Body()
     dto: CreateCommentDto,
   ) {
-    // console.log('bodyParser.json():', bodyParser.json().toString());
     console.log('req[user_data].id:', req['user_data'].id);
 
     console.log('dto.post_id:', dto.post_id);
@@ -93,22 +73,8 @@ export class PostController {
     );
   }
 
-  @Get('all_posts')
-  getAllPosts(
-    @Query('page') page: number,
-    @Query('pageSize') pageSize: number,
-  ) {
-    return this.postService.getAllPosts(page, pageSize);
-  }
-
-  @UseGuards(AuthUserGuard)
-  @Get('all_my_post')
-  getMyPosts(@Req() req: any) {
-    return this.postService.getAllMyPost(req['user_data'].id);
-  }
-
   @Get('detail')
-  async getPostDetails(@Query('id') id: number) {
+  async getPostDetails(@Query('post_id') id: number) {
     return this.postService.getPostDetails(id);
   }
 
@@ -121,6 +87,56 @@ export class PostController {
     {
       return this.postService.getCommentPost(id, page, pageSize);
     }
+  }
+
+  // ============================= cms ==============================================
+
+  @Get('all_posts')
+  getAllPosts(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.postService.getAllPosts(page, pageSize);
+  }
+
+  @Get('team_all_posts') // not run
+  getTeamAllPosts(
+    @Query('page') page: number,
+    @Query('team_id') teamId: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.postService.getAllPosts(page, pageSize);
+  }
+
+  @Get('comment_list')
+  async getDetailCommentPost(
+    @Query('post_id') id: number,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    {
+      return this.postService.getCommentPost(id, page, pageSize);
+    }
+  }
+
+  @Get('post_report_list') // not run
+  async getAllPostsReport(
+    @Query('post_id') id: number,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    {
+      return this.postService.getAllPostsReport(page, pageSize);
+    }
+  }
+
+  @Get('user_post_list')
+  getPostAllUserCms(
+    @Query('user_id') user_id: number,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.postService.getAllMyPost(user_id, page, pageSize);
   }
 
   //============================== personal =================================================
@@ -142,5 +158,15 @@ export class PostController {
   @Get('detail_personal')
   async getPostDetailsPersonal(@Req() req: any, @Query('id') id: number) {
     return this.postService.getPostDetailsPersonal(req['user_data'].id, id);
+  }
+
+  @UseGuards(AuthUserGuard)
+  @Get('all_my_post')
+  getMyPosts(
+    @Req() req: any,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.postService.getAllMyPost(req['user_data'].id, page, pageSize);
   }
 }

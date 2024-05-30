@@ -51,7 +51,19 @@ export class PostService {
     return result;
   }
 
-  async getAllMyPost(userId: number) {
+  async getAllMyPost(userId: number, page: number = 1, pageSize: number = 30) {
+    const commentCountSubQuery = this.postRepository
+      .createQueryBuilder('post2')
+      .leftJoin('post2.comments', 'comment')
+      .where('post2.post_id = post.post_id')
+      .select('COUNT(comment.comment_id)', 'commentCount');
+
+    const credibilityCountSubQuery = this.postRepository
+      .createQueryBuilder('post3')
+      .leftJoin('post3.department_post', 'credibilityPost')
+      .where('post3.post_id = post.post_id')
+      .select('COUNT(credibilityPost.user_id)', 'credibilityCount');
+
     const posts = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.comments', 'comment')
@@ -67,10 +79,66 @@ export class PostService {
         'post.content',
         'post.created_date',
         'post.privacy_type',
-        'COUNT(comment.comment_id) AS commentCount',
-        'COUNT(credibilityPost.user_id) AS credibilityCount',
+        `(${commentCountSubQuery.getQuery()}) AS commentCount`,
+        `(${credibilityCountSubQuery.getQuery()}) AS credibilityCount`,
       ])
       .groupBy('post.post_id')
+      .orderBy('post.created_date', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getRawMany();
+
+    for (const post of posts) {
+      const images = await this.postRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.post_images', 'postImage')
+        .where('postImage.post_id = :postId', { postId: post.post_post_id })
+        .select('postImage.post_image_url')
+        .getRawMany();
+
+      post.post_image_url = images.map(
+        (image) => image.postImage_post_image_url,
+      );
+    }
+
+    return posts;
+  }
+
+  async getAllPostsReport(page: number, pageSize: number = 30) {
+    const commentCountSubQuery = this.postRepository
+      .createQueryBuilder('post2')
+      .leftJoin('post2.comments', 'comment')
+      .where('post2.post_id = post.post_id')
+      .select('COUNT(comment.comment_id)', 'commentCount');
+
+    const credibilityCountSubQuery = this.postRepository
+      .createQueryBuilder('post3')
+      .leftJoin('post3.department_post', 'credibilityPost')
+      .where('post3.post_id = post.post_id')
+      .select('COUNT(credibilityPost.user_id)', 'credibilityCount');
+
+    const posts = await this.postRepository
+      .createQueryBuilder('post')
+      .innerJoinAndSelect('post.reportPosts', 'reportPost')
+      .addSelect('reportPost.reason')
+      .leftJoinAndSelect('post.comments', 'comment')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.department_post', 'credibilityPost')
+      .select([
+        'post.post_id',
+        'post.user_post',
+        'user.display_name',
+        'user.avatar',
+        'post.content',
+        'post.created_date',
+        'post.privacy_type',
+        `(${commentCountSubQuery.getQuery()}) AS commentCount`,
+        `(${credibilityCountSubQuery.getQuery()}) AS credibilityCount`,
+      ])
+      .groupBy('post.post_id')
+      .orderBy('post.created_date', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
       .getRawMany();
 
     for (const post of posts) {

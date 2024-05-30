@@ -17,4 +17,16 @@ export class TeamController {
     const team = await this.teamService.getTeamById(id);
     return team;
   }
+
+  /// ============== cms ==============
+
+  /// ============ user team ============
+
+  @Get('my_teams_user') /// not create
+  async getMyTeamsUser(@Query('id') id: number) {
+    console.log('user_id', id);
+
+    const teams = await this.teamService.getAllTeams();
+    return teams;
+  }
 }
