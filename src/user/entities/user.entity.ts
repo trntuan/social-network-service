@@ -16,7 +16,7 @@ import { CredibilityPost } from 'src/post/entities/credibility_post.entity';
 import { CredibilityUser } from './credibility_user.entity';
 import { Team } from 'src/team/entities/team.entity';
 import { TeamMember } from 'src/team/entities/team_member.entity';
-
+import { Comment } from 'src/post/entities/comment.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -87,6 +87,9 @@ export class User {
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[]; // Tạo mối quan hệ One-to-Many với entity Post
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 
   @OneToMany(() => ReportPost, (reportPost) => reportPost.user)
   reportPosts: ReportPost[];

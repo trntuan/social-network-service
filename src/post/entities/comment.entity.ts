@@ -6,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Post } from './post.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity()
 export class Comment {
@@ -37,4 +38,8 @@ export class Comment {
   @ManyToOne(() => Post, (post) => post.comments)
   @JoinColumn({ name: 'post_id' })
   post: Post;
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.comments)
+  user: User[];
 }

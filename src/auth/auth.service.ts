@@ -22,21 +22,17 @@ export class AuthService {
 
   async loginAdmin(loginDto: LoginDto, cookie: Response): Promise<any> {
     const { email, password } = loginDto;
-    console.log('email, password', email, password);
 
     const admin = await this.adminRepository
       .createQueryBuilder('admin')
       .where('admin.email = :email', { email })
       .getOne();
-    console.log('loginDtadmino', admin);
 
     if (admin && admin.password === password) {
       //generate access token and refresh token
       const payload = { id: admin.admin_id, email: admin.email };
       console.log('payload:', JSON.stringify(payload));
       const token = await this.generateTokenAdmin(payload);
-
-      console.log('token:', JSON.stringify(token));
 
       cookie.cookie('token', token.refresh_token);
       const response: any = {
@@ -71,7 +67,6 @@ export class AuthService {
       const verify = await this.jwtService.verifyAsync(refreshToken.token, {
         secret: this.configService.get<string>('SECRET'),
       });
-      console.log('verify:', verify);
 
       const checkExistToken = await this.adminRepository.findOneBy({
         email: verify.email,
@@ -110,8 +105,6 @@ export class AuthService {
       const payload = { id: user.user_id, email: user.email };
       console.log('payload:', JSON.stringify(payload));
       const token = await this.generateTokenUser(payload);
-
-      console.log('token:', JSON.stringify(token));
 
       cookie.cookie('token', token.refresh_token);
       const response: any = {
