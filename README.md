@@ -42,3 +42,9 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+locahost: $ make update-registry
+server: make run-build
+$ docker pull tuandev202202/social-network
+
+$ docker restart nestjs_backend
