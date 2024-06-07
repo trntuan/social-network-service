@@ -20,6 +20,16 @@ export class TeamService {
       .getRawMany();
   }
 
+  // async getAllTeams() {
+  //   return this.teamRepository
+  //     .createQueryBuilder('team')
+  //     .leftJoinAndSelect('team.teamMembers', 'TeamMember')
+  //     .leftJoinAndSelect('team.postTeam', 'PostTeam')
+  //     .select(['team', 'COUNT(TeamMember.user_id) AS memberCount'])
+  //     .groupBy('team.team_id')
+  //     .getRawMany();
+  // }
+
   async getTeamById(teamId: number) {
     return this.teamRepository
       .createQueryBuilder('team')

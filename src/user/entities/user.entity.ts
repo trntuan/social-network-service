@@ -17,6 +17,8 @@ import { CredibilityUser } from './credibility_user.entity';
 import { Team } from 'src/team/entities/team.entity';
 import { TeamMember } from 'src/team/entities/team_member.entity';
 import { Comment } from 'src/post/entities/comment.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { Message } from 'src/chat/entities/message.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -73,11 +75,30 @@ export class User {
   //   inverseJoinColumn: { name: 'major_id', referencedColumnName: 'major_id' },
   // })
   // userMajor: UserMajor[];
+
+  //
   @OneToMany(() => Friendship, (friendship) => friendship.user1)
   friendships1: Friendship[];
 
   @OneToMany(() => Friendship, (friendship) => friendship.user2)
   friendships2: Friendship[];
+  //
+
+  ///
+  @OneToMany(() => Chat, (chat) => chat.user1)
+  friendchat1: Chat[];
+
+  @OneToMany(() => Chat, (chat) => chat.user2)
+  friendchat2: Chat[];
+  ///
+
+  ///
+  @OneToMany(() => Message, (message) => message.chat)
+  MessageChat: Message[];
+
+  @OneToMany(() => Message, (message) => message.sender)
+  MessageSender: Message[];
+  ///
 
   @OneToMany(() => UserMajor, (userMajor) => userMajor.user)
   userMajor: UserMajor[];

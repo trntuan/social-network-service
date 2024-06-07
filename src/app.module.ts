@@ -12,6 +12,7 @@ import { AdminModule } from './admin/admin.module';
 import { MinioClientModule } from './minio-client/minio-client.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AuthModule } from './auth/auth.module';
     MinioClientModule,
     FileUploadModule,
     AuthModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ActionFriendDto } from './dto/action_friend.dto';
 import { AuthUserGuard } from 'src/auth/auth_user.guard';
 // import { LoginDto } from './dto/login.dto';
 
@@ -32,6 +34,17 @@ export class UserController {
   async getFriendRecoment(@Req() req: any) {
     return this.userService.getUsersExcludingFriends(req['user_data'].id);
   }
+  @UseGuards(AuthUserGuard)
+  @Get('friend_sent_to_you')
+  async getFriendSentToYou(@Req() req: any) {
+    return this.userService.getFriendSentToYou(req['user_data'].id);
+  }
+
+  @UseGuards(AuthUserGuard)
+  @Get('friend_you_sent')
+  async getFriendYouSent(@Req() req: any) {
+    return this.userService.getFriendYouSent(req['user_data'].id);
+  }
 
   // ================ cms ================
   @Get('user_detail')
@@ -40,10 +53,25 @@ export class UserController {
     return this.userService.findUser(id);
   }
 
-  @Get('friend_list') // not run
-  detailUserFriendList(@Query('user_id') id: number) {
-    console.log('id', id);
-    return this.userService.getUsersExcludingFriends(id);
+  // @Get('friend_list') // not run
+  // detailUserFriendList(@Query('user_id') id: number) {
+  //   console.log('id', id);
+  //   return this.userService.getUsersExcludingFriends(id);
+  // }
+
+  @UseGuards(AuthUserGuard)
+  @Post('add_friend')
+  async addFriend(@Req() req: any, @Body() ActionFriendDto: ActionFriendDto) {
+    return this.userService.createFriendship(
+      req['user_data'].id,
+      ActionFriendDto.friend_id,
+    );
+  }
+
+  @UseGuards(AuthUserGuard)
+  @Get('friend_list_auth') // not run
+  detailUserFriendList(@Req() req: any) {
+    return this.userService.getUsersFriends(req['user_data'].id);
   }
 
   @Get('user_list')

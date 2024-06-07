@@ -1,7 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+<<<<<<< HEAD
 
+=======
+// import { ChatGateway } from './chat/chat.gateway';
+>>>>>>> locallhost
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -12,5 +16,18 @@ async function bootstrap() {
 
   app.use(cookieParser());
   await app.listen(3000);
+
+  // const eventGateway = app.get(ChatGateway);
+  // setInterval(() => {
+  //   eventGateway.server.emit('events', { data: 'Hello world!' });
+  // });
+
+  // setInterval(() => {
+  //   eventGateway.handleMessage({
+  //     sender: 'me',
+  //     receiver: 'you',
+  //     content: 'hello world!',
+  //   });
+  // }, 1000);
 }
 bootstrap();

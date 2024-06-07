@@ -32,6 +32,203 @@ export class UserService {
   }
   /// ====================== friend ======================
 
+  async createFriendship(user_id_1: number, user_id_2: number) {
+    const friendship = new Friendship();
+    friendship.user_id_1 = user_id_1;
+    friendship.user_id_2 = user_id_2;
+    friendship.status_id = 1;
+
+    return this.friendshipRepository.save(friendship);
+  }
+
+  async blockUser(user_id_1: number, user_id_2: number) {
+    const friendship = await this.friendshipRepository.findOne({
+      where: { user_id_1, user_id_2 },
+    });
+    if (!friendship) {
+      throw new Error('Friendship not found');
+    }
+    friendship.status_id = 0;
+    return this.friendshipRepository.save(friendship);
+  }
+
+  async confirmFriendship(user_id_1: number, user_id_2: number) {
+    const friendship = await this.friendshipRepository.findOne({
+      where: { user_id_1, user_id_2 },
+    });
+    if (!friendship) {
+      throw new Error('Friendship not found');
+    }
+    friendship.status_id = 2;
+    return this.friendshipRepository.save(friendship);
+  }
+
+  async cancelFriendship(user_id_1: number, user_id_2: number) {
+    const friendship = await this.friendshipRepository.findOne({
+      where: { user_id_1, user_id_2 },
+    });
+    if (!friendship) {
+      throw new Error('Friendship not found');
+    }
+    return this.friendshipRepository.remove(friendship);
+  }
+
+  /// ====================== friend ======================
+
+  // danh sách bạn đã gửi
+  async getFriendYouSent(userId: number) {
+    const excludedUserIds = await this.friendshipRepository
+      .createQueryBuilder('friendship')
+      .where('friendship.user_id_1 = :userId', { userId })
+      .where('(friendship.user_id_1 = :userId) AND friendship.status_id = 1', {
+        userId,
+      })
+      .getMany()
+      .then((friendships) =>
+        friendships.map((f) =>
+          f.user_id_1 === userId ? f.user_id_2 : f.user_id_1,
+        ),
+      );
+
+    if (excludedUserIds.length === 0) {
+      return this.userRepository.find({
+        select: ['user_id', 'avatar', 'display_name'],
+      });
+    }
+
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.user_id', 'user.avatar', 'user.display_name'])
+      .where('user.user_id IN (:...excludedUserIds)', { excludedUserIds })
+      .getMany();
+
+    // Get the list of friends for each user
+    const usersWithCommonFriends = await Promise.all(
+      users.map(async (user) => {
+        const commonFriends = await this.friendshipRepository
+          .createQueryBuilder('friendship')
+          .where(
+            'friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId',
+            { userId: user.user_id }, // Use user.user_id instead of userId
+          )
+          .andWhere('friendship.status_id = 2')
+          .getCount();
+
+        return {
+          user_id: user.user_id,
+          avatar: user.avatar,
+          display_name: user.display_name,
+          commonFriends: commonFriends ?? 0,
+        };
+      }),
+    );
+
+    return usersWithCommonFriends;
+  }
+  // danh sách các người gửi lời mời
+  async getFriendSentToYou(userId: number) {
+    const excludedUserIds = await this.friendshipRepository
+      .createQueryBuilder('friendship')
+      .where('friendship.user_id_2 = :userId', { userId })
+      .where('(friendship.user_id_2 = :userId) AND friendship.status_id = 1', {
+        userId,
+      })
+      .getMany()
+      .then((friendships) =>
+        friendships.map((f) =>
+          f.user_id_1 === userId ? f.user_id_2 : f.user_id_1,
+        ),
+      );
+
+    if (excludedUserIds.length === 0) {
+      return this.userRepository.find({
+        select: ['user_id', 'avatar', 'display_name'],
+      });
+    }
+
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.user_id', 'user.avatar', 'user.display_name'])
+      .where('user.user_id IN (:...excludedUserIds)', { excludedUserIds })
+      .getMany();
+
+    // Get the list of friends for each user
+    const usersWithCommonFriends = await Promise.all(
+      users.map(async (user) => {
+        const commonFriends = await this.friendshipRepository
+          .createQueryBuilder('friendship')
+          .where(
+            'friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId',
+            { userId: user.user_id }, // Use user.user_id instead of userId
+          )
+          .andWhere('friendship.status_id = 2')
+          .getCount();
+
+        return {
+          user_id: user.user_id,
+          avatar: user.avatar,
+          display_name: user.display_name,
+          commonFriends: commonFriends ?? 0,
+        };
+      }),
+    );
+
+    return usersWithCommonFriends;
+  }
+
+  // danh sách các bạn bè bản thân
+  async getUsersFriends(userId: number) {
+    const excludedUserIds = await this.friendshipRepository
+      .createQueryBuilder('friendship')
+      .where('friendship.user_id_1 = :userId', { userId })
+      .where(
+        '(friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId) AND friendship.status_id = 2',
+        { userId },
+      )
+      .getMany()
+      .then((friendships) =>
+        friendships.map((f) =>
+          f.user_id_1 === userId ? f.user_id_2 : f.user_id_1,
+        ),
+      );
+
+    if (excludedUserIds.length === 0) {
+      return this.userRepository.find({
+        select: ['user_id', 'avatar', 'display_name'],
+      });
+    }
+
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.user_id', 'user.avatar', 'user.display_name'])
+      .where('user.user_id IN (:...excludedUserIds)', { excludedUserIds })
+      .getMany();
+
+    // Get the list of friends for each user
+    const usersWithCommonFriends = await Promise.all(
+      users.map(async (user) => {
+        const commonFriends = await this.friendshipRepository
+          .createQueryBuilder('friendship')
+          .where(
+            'friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId',
+            { userId: user.user_id }, // Use user.user_id instead of userId
+          )
+          .andWhere('friendship.status_id = 2')
+          .getCount();
+
+        return {
+          user_id: user.user_id,
+          avatar: user.avatar,
+          display_name: user.display_name,
+          commonFriends: commonFriends ?? 0,
+        };
+      }),
+    );
+
+    return usersWithCommonFriends;
+  }
+
+  // danh sách các bạn đề xuất
   async getUsersExcludingFriends(userId: number) {
     const excludedUserIds = await this.friendshipRepository
       .createQueryBuilder('friendship')
@@ -44,9 +241,10 @@ export class UserService {
           f.user_id_1 === userId ? f.user_id_2 : f.user_id_1,
         ),
       );
+    // console.log('excludedUserIds:', excludedUserIds);
 
     if (excludedUserIds.length === 0) {
-      console.log('excludedUserIds:', excludedUserIds);
+      // console.log('excludedUserIds:', excludedUserIds);
       return this.userRepository.find({
         select: ['user_id', 'avatar', 'display_name'],
       });
@@ -57,6 +255,8 @@ export class UserService {
       .select(['user.user_id', 'user.avatar', 'user.display_name'])
       .where('user.user_id NOT IN (:...excludedUserIds)', { excludedUserIds })
       .getMany();
+
+    // console.log('users:', users);
 
     // Get the list of friends for each user
     const usersWithCommonFriends = await Promise.all(
@@ -139,7 +339,7 @@ export class UserService {
         user: user,
       };
 
-      console.log('response:', response);
+      // console.log('response:', response);
       return response;
     }
   }

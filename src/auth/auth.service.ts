@@ -111,6 +111,7 @@ export class AuthService {
         statusCode: '200',
         message: 'Đăng nhập thành công!',
         email: user.email,
+        user_id: user.user_id,
         password: user.password,
         display_name: user.display_name,
         token: token.access_token,
