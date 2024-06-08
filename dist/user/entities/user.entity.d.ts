@@ -8,6 +8,8 @@ import { CredibilityUser } from './credibility_user.entity';
 import { Team } from 'src/team/entities/team.entity';
 import { TeamMember } from 'src/team/entities/team_member.entity';
 import { Comment } from 'src/post/entities/comment.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { Message } from 'src/chat/entities/message.entity';
 export declare class User {
     user_id: number;
     display_name: string;
@@ -24,6 +26,10 @@ export declare class User {
     is_active: number;
     friendships1: Friendship[];
     friendships2: Friendship[];
+    friendchat1: Chat[];
+    friendchat2: Chat[];
+    MessageChat: Message[];
+    MessageSender: Message[];
     userMajor: UserMajor[];
     notifications: Notification[];
     posts: Post[];

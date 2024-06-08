@@ -9,7 +9,29 @@ export declare class UserService {
     constructor(userRepository: Repository<User>, friendshipRepository: Repository<Friendship>);
     create(createUserDto: CreateUserDto): Promise<CreateUserDto & User>;
     getAllUsers(): Promise<User[]>;
-    getUsersExcludingFriends(userId: number): Promise<User[] | {
+    createFriendship(user_id_1: number, user_id_2: number): Promise<Friendship>;
+    blockUser(user_id_1: number, user_id_2: number): Promise<Friendship>;
+    confirmFriendship(user_id_1: number, user_id_2: number): Promise<Friendship>;
+    cancelFriendship(user_id_1: number, user_id_2: number): Promise<Friendship>;
+    getFriendYouSent(userId: number): Promise<{
+        user_id: number;
+        avatar: string;
+        display_name: string;
+        commonFriends: number;
+    }[]>;
+    getFriendSentToYou(userId: number): Promise<{
+        user_id: number;
+        avatar: string;
+        display_name: string;
+        commonFriends: number;
+    }[]>;
+    getUsersFriends(userId: number): Promise<{
+        user_id: number;
+        avatar: string;
+        display_name: string;
+        commonFriends: number;
+    }[]>;
+    getUsersExcludingFriends(userId: number): Promise<{
         user_id: number;
         avatar: string;
         display_name: string;

@@ -21,6 +21,8 @@ const credibility_user_entity_1 = require("./credibility_user.entity");
 const team_entity_1 = require("../../team/entities/team.entity");
 const team_member_entity_1 = require("../../team/entities/team_member.entity");
 const comment_entity_1 = require("../../post/entities/comment.entity");
+const chat_entity_1 = require("../../chat/entities/chat.entity");
+const message_entity_1 = require("../../chat/entities/message.entity");
 let User = class User {
 };
 exports.User = User;
@@ -85,6 +87,22 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => friendship_entity_1.Friendship, (friendship) => friendship.user2),
     __metadata("design:type", Array)
 ], User.prototype, "friendships2", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => chat_entity_1.Chat, (chat) => chat.user1),
+    __metadata("design:type", Array)
+], User.prototype, "friendchat1", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => chat_entity_1.Chat, (chat) => chat.user2),
+    __metadata("design:type", Array)
+], User.prototype, "friendchat2", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => message_entity_1.Message, (message) => message.chat),
+    __metadata("design:type", Array)
+], User.prototype, "MessageChat", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => message_entity_1.Message, (message) => message.sender),
+    __metadata("design:type", Array)
+], User.prototype, "MessageSender", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => user_major_entity_1.UserMajor, (userMajor) => userMajor.user),
     __metadata("design:type", Array)

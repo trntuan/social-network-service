@@ -12,12 +12,13 @@ const team_service_1 = require("./team.service");
 const team_controller_1 = require("./team.controller");
 const team_entity_1 = require("./entities/team.entity");
 const typeorm_1 = require("@nestjs/typeorm");
+const team_member_entity_1 = require("./entities/team_member.entity");
 let TeamModule = class TeamModule {
 };
 exports.TeamModule = TeamModule;
 exports.TeamModule = TeamModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([team_entity_1.Team])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([team_entity_1.Team, team_member_entity_1.TeamMember])],
         controllers: [team_controller_1.TeamController],
         providers: [team_service_1.TeamService],
     })

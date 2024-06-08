@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeamController = void 0;
 const common_1 = require("@nestjs/common");
 const team_service_1 = require("./team.service");
+const action_team_dto_1 = require("./dto/action_team.dto");
 let TeamController = class TeamController {
     constructor(teamService) {
         this.teamService = teamService;
@@ -24,13 +25,23 @@ let TeamController = class TeamController {
         return teams;
     }
     async getTeamById(id) {
-        console.log('id', id);
         const team = await this.teamService.getTeamById(id);
         return team;
     }
+    async addFriend(actionTeamDto) {
+        return this.teamService.joinTeam(actionTeamDto.user_id, actionTeamDto.team_id);
+    }
+    async outTeam(actionTeamDto) {
+        return this.teamService.outTeam(actionTeamDto.user_id, actionTeamDto.team_id);
+    }
     async getMyTeamsUser(id) {
         console.log('user_id', id);
-        const teams = await this.teamService.getAllTeams();
+        const teams = await this.teamService.getTeamsJoinedByUser(id);
+        return teams;
+    }
+    async getMyTeamsRecomemd(id) {
+        console.log('user_id', id);
+        const teams = await this.teamService.getTeamsNotJoinedByUser(id);
         return teams;
     }
 };
@@ -49,12 +60,33 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TeamController.prototype, "getTeamById", null);
 __decorate([
+    (0, common_1.Post)('join_team'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [action_team_dto_1.ActionTeamDto]),
+    __metadata("design:returntype", Promise)
+], TeamController.prototype, "addFriend", null);
+__decorate([
+    (0, common_1.Post)('out_team'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [action_team_dto_1.ActionTeamDto]),
+    __metadata("design:returntype", Promise)
+], TeamController.prototype, "outTeam", null);
+__decorate([
     (0, common_1.Get)('my_teams_user'),
-    __param(0, (0, common_1.Query)('id')),
+    __param(0, (0, common_1.Query)('user_id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], TeamController.prototype, "getMyTeamsUser", null);
+__decorate([
+    (0, common_1.Get)('teams_recomend'),
+    __param(0, (0, common_1.Query)('user_id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], TeamController.prototype, "getMyTeamsRecomemd", null);
 exports.TeamController = TeamController = __decorate([
     (0, common_1.Controller)('team'),
     __metadata("design:paramtypes", [team_service_1.TeamService])

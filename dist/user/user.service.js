@@ -23,7 +23,6 @@ let UserService = class UserService {
         this.friendshipRepository = friendshipRepository;
     }
     create(createUserDto) {
-        console.log(createUserDto);
         return this.userRepository.save(createUserDto);
     }
     async getAllUsers() {
@@ -38,25 +37,163 @@ let UserService = class UserService {
             ],
         });
     }
+    async createFriendship(user_id_1, user_id_2) {
+        const friendship = new friendship_entity_1.Friendship();
+        friendship.user_id_1 = user_id_1;
+        friendship.user_id_2 = user_id_2;
+        friendship.status_id = 1;
+        return this.friendshipRepository.save(friendship);
+    }
+    async blockUser(user_id_1, user_id_2) {
+        const friendship = await this.friendshipRepository.findOne({
+            where: { user_id_1, user_id_2 },
+        });
+        if (!friendship) {
+            throw new Error('Friendship not found');
+        }
+        friendship.status_id = 0;
+        return this.friendshipRepository.save(friendship);
+    }
+    async confirmFriendship(user_id_1, user_id_2) {
+        const friendship = await this.friendshipRepository.findOne({
+            where: { user_id_1, user_id_2 },
+        });
+        if (!friendship) {
+            throw new Error('Friendship not found');
+        }
+        friendship.status_id = 2;
+        return this.friendshipRepository.save(friendship);
+    }
+    async cancelFriendship(user_id_1, user_id_2) {
+        const friendship = await this.friendshipRepository.findOne({
+            where: { user_id_1, user_id_2 },
+        });
+        if (!friendship) {
+            throw new Error('Friendship not found');
+        }
+        return this.friendshipRepository.remove(friendship);
+    }
+    async getFriendYouSent(userId) {
+        let excludedUserIds = await this.friendshipRepository
+            .createQueryBuilder('friendship')
+            .where('friendship.user_id_1 = :userId', { userId })
+            .where('(friendship.user_id_1 = :userId) AND friendship.status_id = 1', {
+            userId,
+        })
+            .getMany()
+            .then((friendships) => friendships.map((f) => f.user_id_1 === userId ? f.user_id_2 : f.user_id_1));
+        excludedUserIds = excludedUserIds.filter((id) => id !== userId);
+        if (excludedUserIds.length === 0) {
+            return;
+        }
+        const users = await this.userRepository
+            .createQueryBuilder('user')
+            .select(['user.user_id', 'user.avatar', 'user.display_name'])
+            .where('user.user_id IN (:...excludedUserIds)', { excludedUserIds })
+            .getMany();
+        const usersWithCommonFriends = await Promise.all(users.map(async (user) => {
+            const commonFriends = await this.friendshipRepository
+                .createQueryBuilder('friendship')
+                .where('friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId', { userId: user.user_id })
+                .andWhere('friendship.status_id = 2')
+                .getCount();
+            return {
+                user_id: user.user_id,
+                avatar: user.avatar,
+                display_name: user.display_name,
+                commonFriends: commonFriends ?? 0,
+            };
+        }));
+        return usersWithCommonFriends;
+    }
+    async getFriendSentToYou(userId) {
+        let excludedUserIds = await this.friendshipRepository
+            .createQueryBuilder('friendship')
+            .where('friendship.user_id_2 = :userId', { userId })
+            .where('(friendship.user_id_2 = :userId) AND friendship.status_id = 1', {
+            userId,
+        })
+            .getMany()
+            .then((friendships) => friendships.map((f) => f.user_id_1 === userId ? f.user_id_2 : f.user_id_1));
+        excludedUserIds = excludedUserIds.filter((id) => id !== userId);
+        if (excludedUserIds.length === 0) {
+            return;
+        }
+        const users = await this.userRepository
+            .createQueryBuilder('user')
+            .select(['user.user_id', 'user.avatar', 'user.display_name'])
+            .where('user.user_id IN (:...excludedUserIds)', { excludedUserIds })
+            .getMany();
+        const usersWithCommonFriends = await Promise.all(users.map(async (user) => {
+            const commonFriends = await this.friendshipRepository
+                .createQueryBuilder('friendship')
+                .where('friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId', { userId: user.user_id })
+                .andWhere('friendship.status_id = 2')
+                .getCount();
+            return {
+                user_id: user.user_id,
+                avatar: user.avatar,
+                display_name: user.display_name,
+                commonFriends: commonFriends ?? 0,
+            };
+        }));
+        return usersWithCommonFriends;
+    }
+    async getUsersFriends(userId) {
+        let excludedUserIds = await this.friendshipRepository
+            .createQueryBuilder('friendship')
+            .where('friendship.user_id_1 = :userId', { userId })
+            .where('(friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId) AND friendship.status_id = 2', { userId })
+            .getMany()
+            .then((friendships) => friendships.map((f) => f.user_id_1 === userId ? f.user_id_2 : f.user_id_1));
+        excludedUserIds = excludedUserIds.filter((id) => id !== userId);
+        if (excludedUserIds.length === 0) {
+            return;
+        }
+        const users = await this.userRepository
+            .createQueryBuilder('user')
+            .select(['user.user_id', 'user.avatar', 'user.display_name'])
+            .where('user.user_id IN (:...excludedUserIds)', { excludedUserIds })
+            .getMany();
+        const usersWithCommonFriends = await Promise.all(users.map(async (user) => {
+            const commonFriends = await this.friendshipRepository
+                .createQueryBuilder('friendship')
+                .where('friendship.user_id_1 = :userId OR friendship.user_id_2 = :userId', { userId: user.user_id })
+                .andWhere('friendship.status_id = 2')
+                .getCount();
+            return {
+                user_id: user.user_id,
+                avatar: user.avatar,
+                display_name: user.display_name,
+                commonFriends: commonFriends ?? 0,
+            };
+        }));
+        return usersWithCommonFriends;
+    }
     async getUsersExcludingFriends(userId) {
-        const excludedUserIds = await this.friendshipRepository
+        let excludedUserIds = await this.friendshipRepository
             .createQueryBuilder('friendship')
             .where('friendship.user_id_1 = :userId', { userId })
             .orWhere('friendship.user_id_2 = :userId', { userId })
             .andWhere('friendship.status_id = 2')
             .getMany()
             .then((friendships) => friendships.map((f) => f.user_id_1 === userId ? f.user_id_2 : f.user_id_1));
+        excludedUserIds = excludedUserIds.filter((id) => id !== userId);
+        let users;
         if (excludedUserIds.length === 0) {
-            console.log('excludedUserIds:', excludedUserIds);
-            return this.userRepository.find({
-                select: ['user_id', 'avatar', 'display_name'],
-            });
+            users = await this.userRepository
+                .createQueryBuilder('user')
+                .select(['user.user_id', 'user.avatar', 'user.display_name'])
+                .where('user.user_id != :userId', { userId })
+                .getMany();
         }
-        const users = await this.userRepository
-            .createQueryBuilder('user')
-            .select(['user.user_id', 'user.avatar', 'user.display_name'])
-            .where('user.user_id NOT IN (:...excludedUserIds)', { excludedUserIds })
-            .getMany();
+        else {
+            users = await this.userRepository
+                .createQueryBuilder('user')
+                .select(['user.user_id', 'user.avatar', 'user.display_name'])
+                .where('user.user_id NOT IN (:...excludedUserIds)', { excludedUserIds })
+                .getMany();
+        }
         const usersWithCommonFriends = await Promise.all(users.map(async (user) => {
             const commonFriends = await this.friendshipRepository
                 .createQueryBuilder('friendship')
@@ -121,7 +258,6 @@ let UserService = class UserService {
                 message: 'Đăng ký thành công!',
                 user: user,
             };
-            console.log('response:', response);
             return response;
         }
     }

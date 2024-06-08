@@ -16,6 +16,7 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
+const action_friend_dto_1 = require("./dto/action_friend.dto");
 const auth_user_guard_1 = require("../auth/auth_user.guard");
 let UserController = class UserController {
     constructor(userService) {
@@ -30,13 +31,27 @@ let UserController = class UserController {
     async getFriendRecoment(req) {
         return this.userService.getUsersExcludingFriends(req['user_data'].id);
     }
+    async getFriendSentToYou(req) {
+        return this.userService.getFriendSentToYou(req['user_data'].id);
+    }
+    async getFriendYouSent(req) {
+        return this.userService.getFriendYouSent(req['user_data'].id);
+    }
     detailUser(id) {
         console.log('id', id);
         return this.userService.findUser(id);
     }
-    detailUserFriendList(id) {
-        console.log('id', id);
-        return this.userService.getUsersExcludingFriends(id);
+    async addFriend(req, ActionFriendDto) {
+        return this.userService.createFriendship(req['user_data'].id, ActionFriendDto.friend_id);
+    }
+    async confirmFriendship(req, ActionFriendDto) {
+        return this.userService.confirmFriendship(req['user_data'].id, ActionFriendDto.friend_id);
+    }
+    async cancelFriendship(req, ActionFriendDto) {
+        return this.userService.cancelFriendship(req['user_data'].id, ActionFriendDto.friend_id);
+    }
+    detailUserFriendList(req) {
+        return this.userService.getUsersFriends(req['user_data'].id);
     }
     async getAllUsers() {
         return this.userService.getAllUsers();
@@ -70,6 +85,22 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getFriendRecoment", null);
 __decorate([
+    (0, common_1.UseGuards)(auth_user_guard_1.AuthUserGuard),
+    (0, common_1.Get)('friend_sent_to_you'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getFriendSentToYou", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_user_guard_1.AuthUserGuard),
+    (0, common_1.Get)('friend_you_sent'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getFriendYouSent", null);
+__decorate([
     (0, common_1.Get)('user_detail'),
     __param(0, (0, common_1.Query)('id')),
     __metadata("design:type", Function),
@@ -77,10 +108,38 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "detailUser", null);
 __decorate([
-    (0, common_1.Get)('friend_list'),
-    __param(0, (0, common_1.Query)('user_id')),
+    (0, common_1.UseGuards)(auth_user_guard_1.AuthUserGuard),
+    (0, common_1.Post)('add_friend'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Object, action_friend_dto_1.ActionFriendDto]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "addFriend", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_user_guard_1.AuthUserGuard),
+    (0, common_1.Post)('confirm_friend'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, action_friend_dto_1.ActionFriendDto]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "confirmFriendship", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_user_guard_1.AuthUserGuard),
+    (0, common_1.Post)('cancel_friend'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, action_friend_dto_1.ActionFriendDto]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "cancelFriendship", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_user_guard_1.AuthUserGuard),
+    (0, common_1.Get)('friend_list_auth'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "detailUserFriendList", null);
 __decorate([
