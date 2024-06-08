@@ -18,15 +18,27 @@ export class TeamController {
     return team;
   }
 
+  // addUserTeam
+
   /// ============== cms ==============
 
   /// ============ user team ============
 
   @Get('my_teams_user') /// not create
-  async getMyTeamsUser(@Query('id') id: number) {
+  async getMyTeamsUser(@Query('user_id') id: number) {
     console.log('user_id', id);
 
-    const teams = await this.teamService.getAllTeams();
+    const teams = await this.teamService.getTeamsJoinedByUser(id);
     return teams;
   }
+
+  @Get('teams_recomend') /// not create
+  async getMyTeamsRecomemd(@Query('user_id') id: number) {
+    console.log('user_id', id);
+
+    const teams = await this.teamService.getTeamsNotJoinedByUser(id);
+    return teams;
+  }
+
+  // getTeamsNotJoinedByUser
 }
