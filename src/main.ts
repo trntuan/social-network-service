@@ -1,11 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-<<<<<<< HEAD
-
-=======
 // import { ChatGateway } from './chat/chat.gateway';
->>>>>>> locallhost
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({

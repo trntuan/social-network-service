@@ -21,6 +21,7 @@ const admin_module_1 = require("./admin/admin.module");
 const minio_client_module_1 = require("./minio-client/minio-client.module");
 const file_upload_module_1 = require("./file-upload/file-upload.module");
 const auth_module_1 = require("./auth/auth.module");
+const chat_module_1 = require("./chat/chat.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -51,6 +52,7 @@ exports.AppModule = AppModule = __decorate([
             minio_client_module_1.MinioClientModule,
             file_upload_module_1.FileUploadModule,
             auth_module_1.AuthModule,
+            chat_module_1.ChatModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
