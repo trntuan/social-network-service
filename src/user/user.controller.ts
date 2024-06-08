@@ -108,8 +108,3 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 }
-
-// @Post('login')
-// async login(@Body() loginDto: LoginDto) {
-//   return this.userService.validateUser(loginDto);
-// }

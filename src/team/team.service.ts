@@ -15,13 +15,28 @@ export class TeamService {
 
   //
 
-  async addUserTeam(user_id: number, group_id: number) {
+  async joinTeam(user_id: number, group_id: number) {
+    console.log('group_id', group_id);
+    if (!group_id) {
+      throw new Error('Group ID must be defined');
+    }
+
     const teamMember = new TeamMember();
     teamMember.role_id = 3;
     teamMember.team_id = group_id;
     teamMember.user_id = user_id;
 
     return this.teamMemberRepository.save(teamMember);
+  }
+
+  async outTeam(user_id: number, group_id: number) {
+    const team = await this.teamMemberRepository.findOne({
+      where: { user_id, team_id: group_id },
+    });
+    if (!team) {
+      throw new Error('Friendship not found');
+    }
+    return this.teamMemberRepository.remove(team);
   }
 
   async getAllTeams() {

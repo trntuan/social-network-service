@@ -1,5 +1,6 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { TeamService } from './team.service';
+import { ActionTeamDto } from './dto/action_team.dto';
 
 @Controller('team')
 export class TeamController {
@@ -13,9 +14,23 @@ export class TeamController {
 
   @Get('detail')
   async getTeamById(@Query('id') id: number) {
-    console.log('id', id);
     const team = await this.teamService.getTeamById(id);
     return team;
+  }
+
+  @Post('join_team')
+  async addFriend(@Body() actionTeamDto: ActionTeamDto) {
+    return this.teamService.joinTeam(
+      actionTeamDto.user_id,
+      actionTeamDto.team_id,
+    );
+  }
+  @Post('out_team')
+  async outTeam(@Body() actionTeamDto: ActionTeamDto) {
+    return this.teamService.outTeam(
+      actionTeamDto.user_id,
+      actionTeamDto.team_id,
+    );
   }
 
   // addUserTeam
@@ -39,6 +54,4 @@ export class TeamController {
     const teams = await this.teamService.getTeamsNotJoinedByUser(id);
     return teams;
   }
-
-  // getTeamsNotJoinedByUser
 }
