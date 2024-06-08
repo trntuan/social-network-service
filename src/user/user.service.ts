@@ -14,7 +14,6 @@ export class UserService {
   ) {}
 
   create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
     return this.userRepository.save(createUserDto);
   }
 
@@ -77,7 +76,7 @@ export class UserService {
 
   // danh sách bạn đã gửi
   async getFriendYouSent(userId: number) {
-    const excludedUserIds = await this.friendshipRepository
+    let excludedUserIds = await this.friendshipRepository
       .createQueryBuilder('friendship')
       .where('friendship.user_id_1 = :userId', { userId })
       .where('(friendship.user_id_1 = :userId) AND friendship.status_id = 1', {
@@ -90,10 +89,10 @@ export class UserService {
         ),
       );
 
+    excludedUserIds = excludedUserIds.filter((id) => id !== userId);
+
     if (excludedUserIds.length === 0) {
-      return this.userRepository.find({
-        select: ['user_id', 'avatar', 'display_name'],
-      });
+      return;
     }
 
     const users = await this.userRepository
@@ -127,7 +126,7 @@ export class UserService {
   }
   // danh sách các người gửi lời mời
   async getFriendSentToYou(userId: number) {
-    const excludedUserIds = await this.friendshipRepository
+    let excludedUserIds = await this.friendshipRepository
       .createQueryBuilder('friendship')
       .where('friendship.user_id_2 = :userId', { userId })
       .where('(friendship.user_id_2 = :userId) AND friendship.status_id = 1', {
@@ -140,10 +139,10 @@ export class UserService {
         ),
       );
 
+    excludedUserIds = excludedUserIds.filter((id) => id !== userId);
+
     if (excludedUserIds.length === 0) {
-      return this.userRepository.find({
-        select: ['user_id', 'avatar', 'display_name'],
-      });
+      return;
     }
 
     const users = await this.userRepository
@@ -178,7 +177,7 @@ export class UserService {
 
   // danh sách các bạn bè bản thân
   async getUsersFriends(userId: number) {
-    const excludedUserIds = await this.friendshipRepository
+    let excludedUserIds = await this.friendshipRepository
       .createQueryBuilder('friendship')
       .where('friendship.user_id_1 = :userId', { userId })
       .where(
@@ -192,10 +191,9 @@ export class UserService {
         ),
       );
 
+    excludedUserIds = excludedUserIds.filter((id) => id !== userId);
     if (excludedUserIds.length === 0) {
-      return this.userRepository.find({
-        select: ['user_id', 'avatar', 'display_name'],
-      });
+      return;
     }
 
     const users = await this.userRepository
@@ -230,7 +228,7 @@ export class UserService {
 
   // danh sách các bạn đề xuất
   async getUsersExcludingFriends(userId: number) {
-    const excludedUserIds = await this.friendshipRepository
+    let excludedUserIds = await this.friendshipRepository
       .createQueryBuilder('friendship')
       .where('friendship.user_id_1 = :userId', { userId })
       .orWhere('friendship.user_id_2 = :userId', { userId })
@@ -241,22 +239,23 @@ export class UserService {
           f.user_id_1 === userId ? f.user_id_2 : f.user_id_1,
         ),
       );
-    // console.log('excludedUserIds:', excludedUserIds);
+
+    excludedUserIds = excludedUserIds.filter((id) => id !== userId);
+    let users: User[];
 
     if (excludedUserIds.length === 0) {
-      // console.log('excludedUserIds:', excludedUserIds);
-      return this.userRepository.find({
-        select: ['user_id', 'avatar', 'display_name'],
-      });
+      users = await this.userRepository
+        .createQueryBuilder('user')
+        .select(['user.user_id', 'user.avatar', 'user.display_name'])
+        .where('user.user_id != :userId', { userId })
+        .getMany();
+    } else {
+      users = await this.userRepository
+        .createQueryBuilder('user')
+        .select(['user.user_id', 'user.avatar', 'user.display_name'])
+        .where('user.user_id NOT IN (:...excludedUserIds)', { excludedUserIds })
+        .getMany();
     }
-
-    const users = await this.userRepository
-      .createQueryBuilder('user')
-      .select(['user.user_id', 'user.avatar', 'user.display_name'])
-      .where('user.user_id NOT IN (:...excludedUserIds)', { excludedUserIds })
-      .getMany();
-
-    // console.log('users:', users);
 
     // Get the list of friends for each user
     const usersWithCommonFriends = await Promise.all(
@@ -339,7 +338,6 @@ export class UserService {
         user: user,
       };
 
-      // console.log('response:', response);
       return response;
     }
   }

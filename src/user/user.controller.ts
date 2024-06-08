@@ -69,6 +69,30 @@ export class UserController {
   }
 
   @UseGuards(AuthUserGuard)
+  @Post('confirm_friend')
+  async confirmFriendship(
+    @Req() req: any,
+    @Body() ActionFriendDto: ActionFriendDto,
+  ) {
+    return this.userService.confirmFriendship(
+      req['user_data'].id,
+      ActionFriendDto.friend_id,
+    );
+  }
+
+  @UseGuards(AuthUserGuard)
+  @Post('cancel_friend')
+  async cancelFriendship(
+    @Req() req: any,
+    @Body() ActionFriendDto: ActionFriendDto,
+  ) {
+    return this.userService.cancelFriendship(
+      req['user_data'].id,
+      ActionFriendDto.friend_id,
+    );
+  }
+
+  @UseGuards(AuthUserGuard)
   @Get('friend_list_auth') // not run
   detailUserFriendList(@Req() req: any) {
     return this.userService.getUsersFriends(req['user_data'].id);
@@ -84,8 +108,3 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 }
-
-// @Post('login')
-// async login(@Body() loginDto: LoginDto) {
-//   return this.userService.validateUser(loginDto);
-// }
