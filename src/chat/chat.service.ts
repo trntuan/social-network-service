@@ -57,51 +57,24 @@ export class ChatService
   }
 
   getChatsForUser(userId: number) {
-    const subQuerySent = this.messageRepository
-      .createQueryBuilder('m')
-      .select('m.senderId', 'userId')
-      .addSelect('m.message_text', 'message_text')
-      .addSelect('MAX(m.timestamp)', 'last_message_time')
-      .where('m.senderId = :userId')
-      .groupBy('m.senderId')
-      .getQuery();
-
-    const subQueryReceived = this.messageRepository
-      .createQueryBuilder('m')
-      .select('m.sender', 'userId')
-      .addSelect('m.message_text', 'message_text')
-      .addSelect('MAX(m.timestamp)', 'last_message_time')
-      .where('m.sender = :userId') // Lấy tin nhắn gửi tới người dùng
-      .groupBy('m.sender')
-      .getQuery();
-
     const query = this.chatRepository
       .createQueryBuilder('chat')
       .leftJoinAndSelect('chat.user1', 'user1')
       .leftJoinAndSelect('chat.user2', 'user2')
-      .leftJoin(
-        `(${subQuerySent})`,
-        'sentMessages',
-        'user1.user_id = sentMessages.userId',
-      )
-      .leftJoin(
-        `(${subQueryReceived})`,
-        'receivedMessages',
-        'user2.user_id = receivedMessages.userId',
+      .leftJoinAndSelect(
+        'message',
+        'message',
+        'message.chat = chat.chat_id AND message.timestamp = (SELECT MAX(m.timestamp) FROM message m WHERE m.chat = chat.chat_id)',
       )
       .select([
         'chat.chat_id',
         'CASE WHEN user1.user_id = :userId THEN user2.display_name ELSE user1.display_name END AS other_user_name',
         'CASE WHEN user1.user_id = :userId THEN user2.avatar ELSE user1.avatar END AS other_user_avatar',
-        'CASE WHEN user1.user_id = :userId THEN sentMessages.message_text ELSE receivedMessages.message_text END AS last_message_text',
-        'CASE WHEN user1.user_id = :userId THEN sentMessages.last_message_time ELSE receivedMessages.last_message_time END AS last_message_time',
-        'CASE WHEN user1.user_id = :userId THEN user2.user_id ELSE user1.user_id END AS other_user_id', // Thêm dòng này
+        'CASE WHEN user1.user_id = :userId THEN user2.user_id ELSE user1.user_id END AS other_user_id',
+        'message.message_text AS last_message_text',
+        'message.timestamp AS last_message_timestamp',
       ])
-      .where('user1.user_id = :userId OR user2.user_id = :userId', { userId })
-      .orderBy(
-        'CASE WHEN user1.user_id = :userId THEN sentMessages.last_message_time ELSE receivedMessages.last_message_time END',
-        'DESC',
-      );
+      .where('user1.user_id = :userId OR user2.user_id = :userId', { userId });
 
     return query.getRawMany();
   }
